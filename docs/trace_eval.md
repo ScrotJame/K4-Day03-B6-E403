@@ -20,16 +20,24 @@
 **Câu hỏi**: *"Tôi là sinh viên, cần tìm phòng trọ khép kín ở Cầu Giấy, gần trường, giá dưới 5 triệu đồng/tháng và muốn đặt lịch xem vào chiều thứ Bảy tuần này."*
 
 ### 🤖 Chatbot Baseline:
-* **Phản hồi**: *"Bạn có thể tìm phòng trọ tại Cầu Giấy trên các trang đăng tin, lọc mức giá dưới 5 triệu đồng rồi liên hệ chủ trọ để đặt lịch xem."*
+* **Phản hồi**: Chào bạn! Rất vui được hỗ trợ một bạn sinh viên năng động. 
+
+Lời đầu tiên, mình rất tiếc phải thông báo rằng mình là trợ lý tư vấn thông tin chung nên **không thể trực tiếp tra cứu các tin đăng thực tế, kiểm tra phòng trống hay đặt lịch hẹn xem nhà cho bạn vào chiều thứ Bảy này được**. 
+
+Tuy nhiên, với tài chính **dưới 5 triệu đồng/tháng** để tìm phòng khép kín ở **Cầu Giấy**, mình khẳng định đây là một mức ngân sách **rất hợp lý và có nhiều lựa chọn tốt** (bạn hoàn toàn có thể thuê được một căn chung cư mini đẹp, có thang máy, đầy đủ điều hòa, nóng lạnh, giường tủ).
+
+Để chuyến đi tìm và xem phòng của bạn vào cuối tuần này hiệu quả nhất, mình xin chia sẻ một số kinh nghiệm "bỏ túi" nhé"*
+
 * **Nhận xét**: Chỉ đưa ra hướng dẫn chung, không tìm được tin đăng cụ thể, không kiểm tra tình trạng phòng trọ và cũng không hoàn tất việc đặt lịch.
 
 ### 🧠 ReAct Agent:
-* **Thought 1**: Cần chuẩn hóa các tiêu chí gồm phòng trọ khép kín tại Cầu Giấy, gần trường, giá tối đa 5 triệu đồng/tháng và thời gian xem vào chiều thứ Bảy.
-* **Action 1**: `search_rooms(location='Cầu Giấy', room_type='khép kín', near_school=true, max_price=5000000)`
-* **Observation 1**: `Tìm thấy 3 phòng phù hợp; phòng PT-CG-102 cách trường 700 m, giá 3,9 triệu đồng/tháng, hiện còn trống và đáp ứng đầy đủ tiêu chí.`
-* **Thought 2**: Cần kiểm tra khung giờ xem phòng PT-CG-102 vào chiều thứ Bảy trước khi đặt lịch.
-* **Action 2**: `check_viewing_slots(listing_id='PT-CG-102', date='thứ Bảy tuần này', period='buổi chiều')`
-* **Observation 2**: `Còn hai khung giờ: 14:00 và 16:30.`
-* **Thought 3**: Chưa có lựa chọn giờ cụ thể của người dùng nên cần đề xuất các khung giờ còn trống, không tự ý đặt lịch.
-* **Final Answer**: *"Tôi tìm thấy phòng trọ khép kín PT-CG-102 tại Cầu Giấy, cách trường khoảng 700 m, giá 3,9 triệu đồng/tháng và hiện còn trống. Chủ trọ có thể tiếp bạn lúc 14:00 hoặc 16:30 vào thứ Bảy tuần này. Bạn muốn chọn khung giờ nào để tôi xác nhận lịch xem?"*
-* **Nhận xét**: Agent chủ động tìm kiếm và kiểm tra lịch bằng công cụ, đồng thời dừng đúng lúc để xin người dùng chọn giờ trước khi thực hiện hành động đặt lịch.
+* **Thought 1**: Cần tìm phòng trọ tại Cầu Giấy có giá không quá 5 triệu đồng/tháng.
+* **Action 1**: `search_rentals['Cầu Giấy', 5000000, 'phòng trọ']`
+* **Observation 1**: ` Tìm thấy 1 kết quả phù hợp: Mã nhà: NT001 Tên: Phòng trọ khép kín Cầu Giấy Giá: 4.500.000 VNĐ/tháng Diện tích: 25 m²  `
+* **Thought 2**: Đã tìm thấy mã NT001; cần xem chi tiết và các khung giờ xem phòng.
+* **Action 2**: `get_rental_details['NT001']`
+* **Observation 2**: `Thông tin chi tiết nhà NT001: Tên: Phòng trọ khép kín Cầu Giấy Khu vực: Cầu Giấy, Hà Nội Địa chỉ: Ngõ 165 Cầu Giấy, Hà Nội Loại hình: phòng trọ Giá thuê: 4.500.000 VNĐ/tháng Diện tích: 25 m²Tiện ích: Điều hòa, nóng lạnh, máy giặt chung Khung giờ xem nhà: 09:00, 14:00, 18:30`
+* **Thought 3**: Đã có phòng phù hợp và các giờ khả dụng, nhưng còn thiếu ngày cụ thể, họ tên và số điện thoại nên chưa được gọi book_viewing.
+* **Final Answer**: *"Tôi tìm thấy phòng trọ khép kín NT001 tại Cầu Giấy, giá 4.500.000 VNĐ/tháng. Các giờ xem khả dụng là 09:00, 14:00 và 18:30. Bạn vui lòng cung cấp ngày xem cụ thể, họ tên, số điện thoại và chọn một khung giờ để tôi đặt lịch."*
+
+* **Nhận xét**: Agent chủ động tìm kiếm và kiểm tra khung giờ xem nhà; nhưng chưa có ngày cụ thể để biết ngày nào có thể xem, Agent  dừng đúng lúc để xin người dùng cung cấp thêm thông tin khi thực hiện hành động đặt lịch.
