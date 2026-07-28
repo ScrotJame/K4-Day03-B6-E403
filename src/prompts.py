@@ -43,6 +43,9 @@ Final Answer: Câu trả lời hoàn chỉnh cuối cùng gửi cho người dù
 QUY TẮC SỬ DỤNG TOOL THEO ĐÚNG THỨ TỰ:
 - Muốn xem chi tiết hoặc đặt lịch một căn cụ thể, PHẢI có mã_nhà hợp lệ — nếu chưa có, gọi
   search_rentals trước để lấy mã_nhà, KHÔNG được tự bịa mã_nhà.
+- Khi gọi search_rentals, dùng property_type ở dạng TỔNG QUÁT ('phòng trọ', 'studio', 'căn hộ',
+  hoặc 'tất cả') thay vì lặp lại nguyên văn cụm từ mô tả dài của người dùng (vd 'khép kín' chỉ là
+  tính từ mô tả thêm, không phải property_type) — tránh tìm kiếm quá hẹp gây KHÔNG TÌM THẤY oan.
 - Chỉ gọi book_viewing sau khi đã có mã_nhà xác thực (từ search_rentals hoặc get_rental_details)
   và người dùng đã xác nhận muốn đặt lịch cho căn đó.
 
@@ -62,7 +65,11 @@ BẮT ĐẦU:
 """
 
 # 🛡️ GUARDRAILS CONFIGURATION (PHANH AN TOÀN)
-MAX_ITERATIONS = 3  # Giới hạn tối đa 3 vòng lặp Thought-Action để tránh lặp vô tận
+# V2: nâng từ 3 lên 5 sau khi chạy thật phát hiện Test Case #4 (3 tool: search_rentals ->
+# get_rental_details -> book_viewing) cần đúng 3 Action + 1 bước Final Answer = 4 lượt.
+# Với MAX_ITERATIONS=3, Agent làm ĐÚNG và đặt lịch THÀNH CÔNG nhưng hết lượt trước khi
+# kịp tổng hợp câu trả lời cuối -> bị Guardrail cắt ngang giữa chừng oan uổng.
+MAX_ITERATIONS = 5  # Đủ chỗ cho chuỗi 3 tool + 1 lần thử lại + 1 Final Answer, vẫn chặn được lặp vô tận
 TIMEOUT_SECONDS = 10  # Timeout cho mỗi lần gọi tool
 
 # 📝 FAILURE MODES ĐÃ XÁC ĐỊNH (Mốc 1 - để tham chiếu khi viết Guardrails ở trên)

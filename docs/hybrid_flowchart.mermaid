@@ -1,0 +1,40 @@
+flowchart TD
+    A[Người dùng đặt câu hỏi] --> B{Câu hỏi có cần dữ liệu<br/>thời gian thực hoặc thực hiện<br/>hành động thật không?}
+
+    B -->|"Không — hỏi kiến thức chung<br/>(vd: lưu ý hợp đồng, tiêu chí chọn phòng)"| C[CHATBOT PATH]
+    B -->|"Có — cần tra tin đăng thật,<br/>giá, tình trạng trống, đặt lịch xem"| D[REACT AGENT PATH]
+
+    C --> C1["1 lần gọi LLM duy nhất<br/>(CHATBOT_BASELINE_PROMPT)"]
+    C1 --> C2["Trả lời trực tiếp từ kiến thức có sẵn<br/>KHÔNG có tool, KHÔNG có bằng chứng thật"]
+    C2 --> Z([Trả lời người dùng])
+
+    D --> D1["Thought: xác định thông tin<br/>còn thiếu (khu vực, ngân sách...)"]
+    D1 --> D2{Đã đủ khu vực<br/>+ ngân sách chưa?}
+    D2 -->|Chưa đủ| D3[Hỏi lại người dùng]
+    D3 --> Z
+    D2 -->|Đủ| D4["Action: search_rentals[khu vực, giá, loại]"]
+    D4 --> D5["Observation: danh sách phòng phù hợp<br/>(hoặc LỖI / KHÔNG TÌM THẤY)"]
+
+    D5 --> D6{Người dùng muốn xem<br/>chi tiết 1 phòng cụ thể?}
+    D6 -->|Không| Z
+    D6 -->|Có| D7["Action: get_rental_details[mã_nhà]"]
+    D7 --> D8["Observation: chi tiết phòng<br/>+ khung giờ xem khả dụng"]
+
+    D8 --> D9{Đủ thông tin đặt lịch?<br/>ngày, giờ, họ tên, SĐT}
+    D9 -->|Chưa đủ| D3
+    D9 -->|"Đủ, người dùng xác nhận"| D10["Action: book_viewing[mã_nhà, ngày, giờ, tên, sđt]"]
+    D10 --> D11["Observation: mã đặt lịch xác nhận<br/>(hoặc LỖI nếu mã/giờ không hợp lệ)"]
+    D11 --> Z
+
+    D2 -. "Guardrail: chạm MAX_ITERATIONS,<br/>Action lặp lại y hệt, hoặc<br/>tool báo lỗi liên tục" .-> G["Safe Fallback:<br/>xin lỗi + đề nghị cung cấp thêm thông tin"]
+    D5 -. Guardrail .-> G
+    D8 -. Guardrail .-> G
+    G --> Z
+
+    classDef chatbot fill:#dbeafe,stroke:#2563eb,color:#1e3a8a;
+    classDef agent fill:#dcfce7,stroke:#16a34a,color:#14532d;
+    classDef guardrail fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
+
+    class C,C1,C2 chatbot;
+    class D,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11 agent;
+    class G guardrail;
