@@ -1,10 +1,12 @@
 """
 🚀 CORE AGENT APP (Dành cho Role 4: Core Agent Developer)
 File chính ghép nối tất cả các thành phần: Tools + Prompts + Test Cases + Multi-Provider.
+Đề tài 10: Trợ lý tìm nhà trọ/căn hộ và đặt lịch xem nhà.
 """
 
 import json
 import os
+import re
 import sys
 from dotenv import load_dotenv
 
@@ -19,7 +21,7 @@ if sys.stdout.encoding != 'utf-8':
         pass
 
 # Import các thành phần từ file của Role 2, Role 3 & Multi-Provider Adapter
-from tools import AVAILABLE_TOOLS, get_weather, search_flights
+from tools import AVAILABLE_TOOLS, search_rentals, get_rental_details, book_viewing
 from prompts import CHATBOT_BASELINE_PROMPT, REACT_SYSTEM_PROMPT, MAX_ITERATIONS
 from providers import get_llm_provider
 
