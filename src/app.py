@@ -21,7 +21,12 @@ if sys.stdout.encoding != 'utf-8':
         pass
 
 # Import các thành phần từ file của Role 2, Role 3 & Multi-Provider Adapter
-from tools import AVAILABLE_TOOLS, search_rentals, get_rental_details, book_viewing
+from tools import (
+    AVAILABLE_TOOLS,
+    book_viewing,
+    get_rental_details,
+    search_rentals,
+)
 from prompts import CHATBOT_BASELINE_PROMPT, REACT_SYSTEM_PROMPT, MAX_ITERATIONS
 from providers import get_llm_provider
 
@@ -58,25 +63,56 @@ def run_react_agent(user_query: str, provider):
     """
     print(f"\n🤖 [REACT AGENT] Câu hỏi: {user_query}")
     step = 0
+    completed = False
     
     while step < MAX_ITERATIONS:
         step += 1
         print(f"\n--- 🔄 Vòng lặp ReAct (Step {step}/{MAX_ITERATIONS}) ---")
         
         if step == 1:
-            print("🧠 Thought: Câu hỏi này cần tra cứu thời tiết thời gian thực.")
-            print("🛠️ Action: get_weather['Hà Nội']")
+            print(
+                "🧠 Thought: Cần tìm phòng trọ tại Cầu Giấy "
+                "có giá không quá 5 triệu đồng/tháng."
+            )
+            print(
+                "🛠️ Action: search_rentals"
+                "['Cầu Giấy', 5000000, 'phòng trọ']"
+            )
             
             # Thực thi tool
-            obs = get_weather("Hà Nội")
+            obs = search_rentals(
+                location="Cầu Giấy",
+                max_price=5_000_000,
+                property_type="phòng trọ",
+            )
             print(f"👁️ Observation: {obs}")
             
         elif step == 2:
-            print("🧠 Thought: Tôi đã có thông tin thời tiết Hà Nội, giờ tôi có thể tư vấn trang phục.")
-            print("🏁 Final Answer: Thời tiết Hà Nội hôm nay 28°C, nắng nhẹ. Bạn nên mặc áo phông thoáng mát!")
+            print(
+                "🧠 Thought: Đã tìm thấy mã NT001; cần xem chi tiết "
+                "và các khung giờ xem phòng."
+            )
+            print("🛠️ Action: get_rental_details['NT001']")
+            obs = get_rental_details("NT001")
+            print(f"👁️ Observation: {obs}")
+
+        elif step == 3:
+            print(
+                "🧠 Thought: Đã có phòng phù hợp và các giờ khả dụng, "
+                "nhưng còn thiếu ngày cụ thể, họ tên và số điện thoại "
+                "nên chưa được gọi book_viewing."
+            )
+            print(
+                "🏁 Final Answer: Tôi tìm thấy phòng trọ khép kín NT001 "
+                "tại Cầu Giấy, giá 4.500.000 VNĐ/tháng. Các giờ xem "
+                "khả dụng là 09:00, 14:00 và 18:30. Bạn vui lòng cung cấp "
+                "ngày xem cụ thể, họ tên, số điện thoại và chọn một khung "
+                "giờ để tôi đặt lịch."
+            )
+            completed = True
             break
             
-    if step >= MAX_ITERATIONS:
+    if not completed:
         print(f"🛡️ GUARDRAIL TRIGGERED: Đã đạt giới hạn tối đa {MAX_ITERATIONS} bước. Ngắt lặp an toàn!")
 
 

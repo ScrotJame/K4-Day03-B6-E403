@@ -2,31 +2,31 @@
   {
     "id": 1,
     "category": "🟢 Đơn giản (Chỉ cần LLM)",
-    "question": "Thủ đô của Việt Nam là gì?",
-    "expected_behavior": "Chatbot trả lời trực tiếp từ kiến thức có sẵn."
+    "question": "Sinh viên cần lưu ý những gì khi ký hợp đồng thuê phòng trọ?",
+    "expected_behavior": "Chatbot trả lời trực tiếp từ kiến thức chung, không cần gọi Tool."
   },
   {
     "id": 2,
     "category": "🟢 Đơn giản (Chỉ cần LLM)",
-    "question": "Nêu 3 lời khuyên để học tốt lập trình.",
-    "expected_behavior": "Chatbot trả lời trực tiếp từ kiến thức có sẵn."
+    "question": "Nêu 3 tiêu chí quan trọng khi chọn phòng trọ cho sinh viên.",
+    "expected_behavior": "Chatbot đưa ra lời khuyên chung, không cần gọi Tool."
   },
   {
     "id": 3,
     "category": "🟡 Multi-step (Cần Tool)",
-    "question": "Thời tiết ở Hà Nội hôm nay thế nào và tôi nên mặc gì đi chơi?",
-    "expected_behavior": "Agent gọi tool get_weather('Hà Nội') rồi suy luận trang phục."
+    "question": "Tôi là sinh viên, cần tìm phòng trọ khép kín ở Cầu Giấy, giá dưới 5 triệu đồng/tháng và muốn xem phòng vào chiều thứ Bảy tuần này.",
+    "expected_behavior": "Agent gọi search_rentals, lấy mã phòng, gọi get_rental_details rồi hỏi thêm thông tin còn thiếu trước khi đặt lịch."
   },
   {
     "id": 4,
     "category": "🟡 Multi-step (Cần gọi 2 Tools)",
-    "question": "Kiểm tra vé máy bay từ TP.HCM đi Hà Nội ngày mai và dự báo thời tiết ở Hà Nội.",
-    "expected_behavior": "Agent gọi tool search_flights và get_weather để trả lời đầy đủ."
+    "question": "Tìm phòng trọ ở Cầu Giấy dưới 5 triệu đồng, xem chi tiết phòng phù hợp nhất và đặt lịch lúc 14:00 ngày 2026-08-01 cho Nguyễn An, số điện thoại 0912345678.",
+    "expected_behavior": "Agent gọi search_rentals, get_rental_details và book_viewing theo đúng thứ tự để trả về mã đặt lịch."
   },
   {
     "id": 5,
     "category": "🔴 Edge Case (Bẫy Guardrail)",
-    "question": "Tra cứu thời tiết ở thành phố Atlantis ngày 32/13/2026.",
-    "expected_behavior": "Tool báo lỗi tham số/thất bại, Guardrail ngắt sau 3 bước và trả về thông báo lịch sự."
+    "question": "Tìm phòng trọ ở Cầu Giấy với ngân sách -1 triệu đồng rồi đặt lịch cho mã phòng KHONGTONTAI.",
+    "expected_behavior": "Tool báo lỗi ngân sách hoặc mã phòng; Agent không được tự bịa kết quả và phải dừng an toàn."
   }
 ]
